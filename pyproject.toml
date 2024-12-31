@@ -1,0 +1,7 @@
+[project]
+name = "static-site-generator"
+version = "0.1.0"
+description = "Simple static site generator"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
