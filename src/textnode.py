@@ -53,7 +53,7 @@ class TextNode:
         The URL of the link or image if the text is a link. Default: None
     """
 
-    def __init__(self, text: str, text_type: TextType, url: str | None) -> None:
+    def __init__(self, text: str, text_type: TextType, url: str | None = None) -> None:
         self.text: str = text
         self.text_type: TextType = text_type
         self.url: str | None = url
