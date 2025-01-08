@@ -6,6 +6,11 @@ from textnode import TextNode, TextType
 # Will need to think about cleaning up some of these tests. I feel like a good chunk of
 # them aren't necessary.
 class TestTextNode(unittest.TestCase):
+    def test_repr(self):
+        node = TextNode("This is a text node", TextType.BOLD, "https://www.google.com")
+        want = "TextNode(This is a text node, bold, https://www.google.com)"
+        self.assertEqual(repr(node), want)
+
     def test_eq(self):
         node = TextNode("This is a text node", TextType.BOLD)
         node2 = TextNode("This is a text node", TextType.BOLD)
