@@ -9,17 +9,19 @@ class HTMLNode:
     ----------
     tag: str | None
         A string representing the HTML tag name (e.g., "p", "a", "h1", etc.). Setting to
-        `None` will cause the `HTMLNode` object to render as raw text.
+        `None` will cause the `HTMLNode` object to render as raw text. Default: None
     value: str | None
         A string representing the value of the HTML tag (e.g., the text inside a
         paragraph). If set to `None`, `HTMLNode` object is assumed to have children.
+        Default: None
     children: list[HTMLNode] | None
         A list of `HTMLNode` objects representing the children of this node. If set to
-        `None`, `HTMLNode` object is assumed to have a value.
+        `None`, `HTMLNode` object is assumed to have a value. Default: None
     props: dict[str, str] | None
         A dictionary of key-value pairs representing the attributes of the HTML tag. For
         example, a link (`<a>` tag) might have `{"href": "https://www.google.com"}`.
         Setting to `None` will simply cause the `HTMLNode` object to have no attributes.
+        Default: None
     """
 
     def __init__(
@@ -37,7 +39,7 @@ class HTMLNode:
     def __repr__(self) -> str:
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
 
-    def to_html(self) -> None:
+    def to_html(self) -> str:
         """Convert the `HTMLNode` into valid HTML
 
         Currently not implemented

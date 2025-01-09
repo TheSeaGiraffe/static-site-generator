@@ -4,6 +4,7 @@ from htmlnode import HTMLNode
 
 
 class TestHTMLNode(unittest.TestCase):
+    # Don't know if I even need this test
     def test_to_html_not_implemented(self):
         node = HTMLNode()
         self.assertRaises(NotImplementedError, node.to_html)
