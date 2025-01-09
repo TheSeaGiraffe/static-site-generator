@@ -1,9 +1,11 @@
 class HTMLNode:
     """Represents a node in an HTML document tree
 
-    The nodes represented by HTMLNode are effectively all of the HTML tags used in any
-    HTML document plus its contents. Some examples include a `<p>` tag and its contents
-    or an `<a>` tag and its contents. An `HTMLNode` can contain other `HTMLNode`s.
+    `HTMLNode` is specifically designed to be the parent class for all other classes
+    that are meant to be specialized HTML nodes. The nodes represented by HTMLNode are
+    effectively all of the HTML tags used in any HTML document plus its contents. Some
+    examples include a `<p>` tag and its contents or an `<a>` tag and its contents. An
+    `HTMLNode` can contain other `HTMLNode`s.
 
     Parameters
     ----------
@@ -51,6 +53,12 @@ class HTMLNode:
 
         Creates a string containing all of the attributes in `props`. If `props` is
         `None`, will return an empty string.
+
+        Returns
+        -------
+        str
+            The tag attributes as a string of "attribute=value" pairs separated by
+            spaces.
         """
         prop_str = ""
         if self.props is not None:

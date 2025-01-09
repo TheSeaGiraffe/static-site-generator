@@ -5,7 +5,8 @@ class LeafNode(HTMLNode):
     """Represents a leaf node in a HTML document tree
 
     Effectively an `HTMLNode` without any children. Accordingly, `LeafNode` does not
-    take a `children` argument.
+    take a `children` argument. Unlike a regular `HTMLNode` object, `LeafNode` requires
+    both `tag` and `value` parameters with only the `props` parameter being optional.
 
 
     Parameters
@@ -29,6 +30,18 @@ class LeafNode(HTMLNode):
         super().__init__(tag=tag, value=value, props=props)
 
     def to_html(self) -> str:
+        """Convert the `LeafNode` into valid HTML
+
+        Returns `value` as a raw string if `tag` is None. Otherwise, returns 'tag',
+        'value' and 'props' as a valid HTML string. Will raise a `ValueError` if `value`
+        is not provided.
+
+        Returns
+        -------
+        str
+            `value` as a raw string if `tag` is not provided. Otherwise an HTML string
+            representation of the `LeafNode`
+        """
         if self.value is None:
             raise ValueError("'value' attribute has no value")
         if self.tag is None:
