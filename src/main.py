@@ -3,7 +3,7 @@ from textnode import TextNode, TextType
 
 def main():
     text = "This is just a test"
-    text_type = TextType.NORMAL
+    text_type = TextType.TEXT
     url = "https://www.homestarrunner.com"
 
     t_node = TextNode(text, text_type, url)
