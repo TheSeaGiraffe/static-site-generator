@@ -1,7 +1,12 @@
 import unittest
 from enum import Enum
 
-from text_node_converters import split_nodes_delimiter, text_node_to_html
+from text_node_converters import (
+    extract_markdown_images,
+    extract_markdown_links,
+    split_nodes_delimiter,
+    text_node_to_html,
+)
 from textnode import TextNode, TextType
 
 
@@ -514,6 +519,152 @@ class TestSplitNodesDelimiter(unittest.TestCase):
                 )
             ]
             _ = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+
+
+class TestExtractMarkdownImages(unittest.TestCase):
+    def test_multiple_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        got = extract_markdown_images(text)
+        want = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+            ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_image_and_url(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and a ![rick roll](https://i.imgur.com/aKaOqIh.gif)"
+        got = extract_markdown_images(text)
+        want = [("rick roll", "https://i.imgur.com/aKaOqIh.gif")]
+
+        self.assertEqual(got, want)
+
+    def test_no_images(self):
+        text = "This is a text with no images"
+        got = extract_markdown_images(text)
+        want = []
+
+        self.assertEqual(got, want)
+
+    def test_bold_delimiter(self):
+        text = "**This is text with a** ![rick roll](https://i.imgur.com/aKaOqIh.gif) **and** ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        got = extract_markdown_images(text)
+        want = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+            ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_bold_delimiter_around_image(self):
+        text = "This is text with a **![rick roll](https://i.imgur.com/aKaOqIh.gif)** and **![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)**"
+        got = extract_markdown_images(text)
+        want = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+            ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_italic_delimiter(self):
+        text = "*This is text with a* ![rick roll](https://i.imgur.com/aKaOqIh.gif) *and* ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        got = extract_markdown_images(text)
+        want = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+            ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_italic_delimiter_around_image(self):
+        text = "This is text with a *![rick roll](https://i.imgur.com/aKaOqIh.gif)* and *![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)*"
+        got = extract_markdown_images(text)
+        want = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+            ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_code_delimiter(self):
+        text = "This is text with a `![rick roll](https://i.imgur.com/aKaOqIh.gif) in a block of code`."
+        got = extract_markdown_images(text)
+        want = []
+
+        self.assertEqual(got, want)
+
+
+class TestExtractMarkdownLinks(unittest.TestCase):
+    def test_multiple_urls(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        got = extract_markdown_links(text)
+        want = [
+            ("to boot dev", "https://www.boot.dev"),
+            ("to youtube", "https://www.youtube.com/@bootdotdev"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_image_and_url(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and a ![rick roll](https://i.imgur.com/aKa OqIh.gif)"
+        got = extract_markdown_links(text)
+        want = [("to boot dev", "https://www.boot.dev")]
+
+        self.assertEqual(got, want)
+
+    def test_no_urls(self):
+        text = "This is a text with no URLs."
+        got = extract_markdown_links(text)
+        want = []
+
+        self.assertEqual(got, want)
+
+    def test_bold_delimiter(self):
+        text = "**This is text with a link** [to boot dev](https://www.boot.dev) **and** [to youtube](https://www.youtube.com/@bootdotdev)"
+        got = extract_markdown_links(text)
+        want = [
+            ("to boot dev", "https://www.boot.dev"),
+            ("to youtube", "https://www.youtube.com/@bootdotdev"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_bold_delimiter_around_image(self):
+        text = "This is text with a link **[to boot dev](https://www.boot.dev)** and **[to youtube](https://www.youtube.com/@bootdotdev)**"
+        got = extract_markdown_links(text)
+        want = [
+            ("to boot dev", "https://www.boot.dev"),
+            ("to youtube", "https://www.youtube.com/@bootdotdev"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_italic_delimiter(self):
+        text = "*This is text with a link* [to boot dev](https://www.boot.dev) *and* [to youtube](https://www.youtube.com/@bootdotdev)"
+        got = extract_markdown_links(text)
+        want = [
+            ("to boot dev", "https://www.boot.dev"),
+            ("to youtube", "https://www.youtube.com/@bootdotdev"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_italic_delimiter_around_image(self):
+        text = "This is text with a link *[to boot dev](https://www.boot.dev)* and *[to youtube](https://www.youtube.com/@bootdotdev)*"
+        got = extract_markdown_links(text)
+        want = [
+            ("to boot dev", "https://www.boot.dev"),
+            ("to youtube", "https://www.youtube.com/@bootdotdev"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_code_delimiter(self):
+        text = "This is text with a `link [to boot dev](https://www.boot.dev) in a block of code`."
+        got = extract_markdown_links(text)
+        want = []
+
+        self.assertEqual(got, want)
 
 
 if __name__ == "__main__":

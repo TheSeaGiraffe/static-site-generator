@@ -132,3 +132,45 @@ def split_nodes_delimiter(
                     text_node = TextNode(sub_str, text_type)
                 text_nodes.append(text_node)
     return text_nodes
+
+
+def extract_markdown_images(text: str) -> list[tuple[str, str]]:
+    """Extract the alt text and URL of any image tags in the provided text.
+
+    Parameters
+    ----------
+    text: str
+        A string representing raw Markdown
+
+    Returns
+    -------
+    list[tuple[str, str]]
+        A list containing tuples representing the alt text and URL of the Markdown image
+        tag. If there are no matches, returns an empty list.
+    """
+    img_tag_pattern = r"(?<=!)\[(.*?)\]\((.*?)\)"
+    code_block_pattern = r"(`|`{3}).*?" + img_tag_pattern + r".*?(`|`{3})"
+    if re.search(code_block_pattern, text) is not None:
+        return []
+    return re.findall(img_tag_pattern, text)
+
+
+def extract_markdown_links(text: str) -> list[tuple[str, str]]:
+    """Extract the alt text and URL of any URL tags in the provided text.
+
+    Parameters
+    ----------
+    text: str
+        A string representing raw Markdown
+
+    Returns
+    -------
+    list[tuple[str, str]]
+        A list containing tuples representing the alt text and URL of the Markdown URL
+        tag. If there are no matches, returns an empty list.
+    """
+    link_tag_pattern = r"(?<!!)\[(.*?)\]\((.*?)\)"
+    code_block_pattern = r"(`|`{3}).*?" + link_tag_pattern + r".*?(`|`{3})"
+    if re.search(code_block_pattern, text) is not None:
+        return []
+    return re.findall(link_tag_pattern, text)
