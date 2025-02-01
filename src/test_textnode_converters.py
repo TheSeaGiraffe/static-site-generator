@@ -831,7 +831,181 @@ class TestSplitNodesImage(unittest.TestCase):
 
 
 class TestSplitNodesLink(unittest.TestCase):
-    pass
+    def test_multiple_links(self):
+        nodes = [
+            TextNode(
+                "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_link(nodes)
+        want = [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode(
+                "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_multiple_nodes(self):
+        nodes = [
+            TextNode(
+                "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+                TextType.TEXT,
+            ),
+            TextNode(
+                "Visiting Boots at [boot dev](https://www.boot.dev)",
+                TextType.TEXT,
+            ),
+            TextNode(
+                "Watching some lessons [on youtube](https://www.youtube.com/@bootdotdev)",
+                TextType.TEXT,
+            ),
+        ]
+
+        got = split_nodes_link(nodes)
+        want = [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode(
+                "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+            TextNode("Visiting Boots at ", TextType.TEXT),
+            TextNode("boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode("Watching some lessons ", TextType.TEXT),
+            TextNode(
+                "on youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_image_and_url(self):
+        nodes = [
+            TextNode(
+                "This is text with a link [to boot dev](https://www.boot.dev) and a ![rick roll](https://i.imgur.com/aKaOqIh.gif)",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_link(nodes)
+        want = [
+            TextNode(
+                "This is text with a link ",
+                TextType.TEXT,
+            ),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(
+                " and a ![rick roll](https://i.imgur.com/aKaOqIh.gif)",
+                TextType.TEXT,
+            ),
+        ]
+        self.assertEqual(got, want)
+
+    def test_no_links(self):
+        nodes = [TextNode("This is text with no links", TextType.TEXT)]
+        got = split_nodes_link(nodes)
+        want = [TextNode("This is text with no links", TextType.TEXT)]
+
+        self.assertEqual(got, want)
+
+    def test_bold_delimiter(self):
+        nodes = [
+            TextNode(
+                "**This is text with a link** [to boot dev](https://www.boot.dev) **and** [to youtube](https://www.youtube.com/@bootdotdev)",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_link(nodes)
+        want = [
+            TextNode("**This is text with a link** ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" **and** ", TextType.TEXT),
+            TextNode(
+                "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_bold_delimiter_around_link(self):
+        nodes = [
+            TextNode(
+                "This is text with a link **[to boot dev](https://www.boot.dev)** and **[to youtube](https://www.youtube.com/@bootdotdev)**",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_link(nodes)
+        want = [
+            TextNode("This is text with a link **", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode("** and **", TextType.TEXT),
+            TextNode(
+                "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+            TextNode("**", TextType.TEXT),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_italic_delimiter(self):
+        nodes = [
+            TextNode(
+                "*This is text with a link* [to boot dev](https://www.boot.dev) *and* [to youtube](https://www.youtube.com/@bootdotdev)",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_link(nodes)
+        want = [
+            TextNode("*This is text with a link* ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" *and* ", TextType.TEXT),
+            TextNode(
+                "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_italic_delimiter_around_link(self):
+        nodes = [
+            TextNode(
+                "This is text with a link *[to boot dev](https://www.boot.dev)* and *[to youtube](https://www.youtube.com/@bootdotdev)*",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_link(nodes)
+        want = [
+            TextNode("This is text with a link *", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode("* and *", TextType.TEXT),
+            TextNode(
+                "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+            ),
+            TextNode("*", TextType.TEXT),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_code_delimiter(self):
+        nodes = [
+            TextNode(
+                "This is text with a link `[to boot dev](https://www.boot.dev) in a block of code`.",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_link(nodes)
+        want = [
+            TextNode(
+                "This is text with a link `[to boot dev](https://www.boot.dev) in a block of code`.",
+                TextType.TEXT,
+            )
+        ]
+
+        self.assertEqual(got, want)
 
 
 if __name__ == "__main__":
