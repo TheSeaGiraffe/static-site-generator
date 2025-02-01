@@ -18,10 +18,6 @@ TRIPLE_ASTERISK_PATTERN: dict[str, dict[str, str]] = {
     "**": {r"\b\*{3}": "_**", r"\*{3}\b": "**_"},
 }
 
-# ASTERISK_PATTERN_ITALICS: dict[str, str] = {
-#     r"\b\*{2}|\*{2}\b": "@",
-# }
-
 
 def text_node_to_html(text_node: TextNode) -> LeafNode:
     """Convert `TextNode` into `LeafNode`
@@ -183,7 +179,8 @@ def extract_markdown_links(text: str) -> list[tuple[str, str]]:
 def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
     """Splits text nodes containing images into nodes with the appropriate text type
 
-    Raises and exception if old_nodes is empty
+    Raises and exception if old_nodes is empty. Currently ignores images that are
+    enclosed in code blocks.
 
     Parameters
     ----------
@@ -199,12 +196,16 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
         raise ValueError("'old_nodes' is empty")
 
     img_tag_pattern = r"\!\[.*?\]\(.*?\)"
+    code_block_pattern = r"(`|`{3}).*?" + img_tag_pattern + r".*?(`|`{3})"
     text_nodes: list[TextNode] = []
     for node in old_nodes:
-        imgs = extract_markdown_images(node.text)[::-1]
-        text_splits = re.split(img_tag_pattern, node.text)[::-1]
+        imgs: list[tuple[str, str]] = []
+        text_splits = [node.text]
+        if re.search(code_block_pattern, node.text) is None:
+            imgs = extract_markdown_images(node.text)[::-1]
+            text_splits = re.split(img_tag_pattern, node.text)[::-1]
 
-        while (len(imgs) > 0) and (len(text_splits) > 0):
+        while (len(imgs) > 0) or (len(text_splits) > 0):
             text: str = text_splits.pop() if text_splits else ""
             img: tuple[str, str] | None = imgs.pop() if imgs else None
             if text:
@@ -212,7 +213,7 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
                 text_nodes.append(text_node)
             if img is not None:
                 alt_text, url = img
-                text_node = TextNode(alt_text, TextType.LINK, url)
+                text_node = TextNode(alt_text, TextType.IMAGE, url)
                 text_nodes.append(text_node)
     return text_nodes
 
@@ -220,7 +221,8 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
 def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
     """Splits text nodes containing URLs into nodes with the appropriate text type
 
-    Raises and exception if old_nodes is empty
+    Raises and exception if old_nodes is empty. Currently ignores links that are
+    enclosed in code blocks.
 
     Parameters
     ----------
@@ -236,12 +238,16 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
         raise ValueError("'old_nodes' is empty")
 
     link_tag_pattern = r"(?<!!)\[.*?\]\(.*?\)"
+    code_block_pattern = r"(`|`{3}).*?" + link_tag_pattern + r".*?(`|`{3})"
     text_nodes: list[TextNode] = []
     for node in old_nodes:
-        links = extract_markdown_links(node.text)[::-1]
-        text_splits = re.split(link_tag_pattern, node.text)[::-1]
+        links: list[tuple[str, str]] = []
+        text_splits = [node.text]
+        if re.search(code_block_pattern, node.text) is None:
+            links = extract_markdown_links(node.text)[::-1]
+            text_splits = re.split(link_tag_pattern, node.text)[::-1]
 
-        while (len(links) > 0) and (len(text_splits) > 0):
+        while (len(links) > 0) or (len(text_splits) > 0):
             text: str = text_splits.pop() if text_splits else ""
             link: tuple[str, str] | None = links.pop() if links else None
             if text:

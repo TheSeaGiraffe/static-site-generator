@@ -1,13 +1,15 @@
 import unittest
 from enum import Enum
 
-from text_node_converters import (
+from textnode import TextNode, TextType
+from textnode_converters import (
     extract_markdown_images,
     extract_markdown_links,
     split_nodes_delimiter,
+    split_nodes_image,
+    split_nodes_link,
     text_node_to_html,
 )
-from textnode import TextNode, TextType
 
 
 # Tests specifically for the `text_node_to_html` function
@@ -665,6 +667,171 @@ class TestExtractMarkdownLinks(unittest.TestCase):
         want = []
 
         self.assertEqual(got, want)
+
+
+class TestSplitNodesImage(unittest.TestCase):
+    def test_multiple_images(self):
+        nodes = [
+            TextNode(
+                "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_image(nodes)
+        want = [
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_multiple_nodes(self):
+        nodes = [
+            TextNode(
+                "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)",
+                TextType.TEXT,
+            ),
+            TextNode(
+                "Hello there ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)",
+                TextType.TEXT,
+            ),
+            TextNode(
+                "Just a ![rick roll](https://i.imgur.com/aKaOqIh.gif)",
+                TextType.TEXT,
+            ),
+        ]
+        got = split_nodes_image(nodes)
+        want = [
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode("Hello there ", TextType.TEXT),
+            TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode("Just a ", TextType.TEXT),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_image_and_url(self):
+        nodes = [
+            TextNode(
+                "This is text with a link [to boot dev](https://www.boot.dev) and a ![rick roll](https://i.imgur.com/aKaOqIh.gif)",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_image(nodes)
+        want = [
+            TextNode(
+                "This is text with a link [to boot dev](https://www.boot.dev) and a ",
+                TextType.TEXT,
+            ),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+        ]
+        self.assertEqual(got, want)
+
+    def test_no_images(self):
+        nodes = [TextNode("This is text with no images", TextType.TEXT)]
+        got = split_nodes_image(nodes)
+        want = [TextNode("This is text with no images", TextType.TEXT)]
+
+        self.assertEqual(got, want)
+
+    def test_bold_delimiter(self):
+        nodes = [
+            TextNode(
+                "**This is text with a** ![rick roll](https://i.imgur.com/aKaOqIh.gif) **and** ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_image(nodes)
+        want = [
+            TextNode("**This is text with a** ", TextType.TEXT),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+            TextNode(" **and** ", TextType.TEXT),
+            TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_bold_delimiter_around_image(self):
+        nodes = [
+            TextNode(
+                "This is text with a **![rick roll](https://i.imgur.com/aKaOqIh.gif)** and **![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)**",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_image(nodes)
+
+        want = [
+            TextNode("This is text with a **", TextType.TEXT),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+            TextNode("** and **", TextType.TEXT),
+            TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode("**", TextType.TEXT),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_italic_delimiter(self):
+        nodes = [
+            TextNode(
+                "*This is text with a* ![rick roll](https://i.imgur.com/aKaOqIh.gif) *and* ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_image(nodes)
+        want = [
+            TextNode("*This is text with a* ", TextType.TEXT),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+            TextNode(" *and* ", TextType.TEXT),
+            TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_italic_delimiter_around_image(self):
+        nodes = [
+            TextNode(
+                "This is text with a *![rick roll](https://i.imgur.com/aKaOqIh.gif)* and *![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)*",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_image(nodes)
+
+        want = [
+            TextNode("This is text with a *", TextType.TEXT),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+            TextNode("* and *", TextType.TEXT),
+            TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode("*", TextType.TEXT),
+        ]
+
+        self.assertEqual(got, want)
+
+    def test_code_delimiter(self):
+        nodes = [
+            TextNode(
+                "This is text with a `![rick roll](https://i.imgur.com/aKaOqIh.gif) in a block of code`.",
+                TextType.TEXT,
+            )
+        ]
+        got = split_nodes_image(nodes)
+        want = [
+            TextNode(
+                "This is text with a `![rick roll](https://i.imgur.com/aKaOqIh.gif) in a block of code`.",
+                TextType.TEXT,
+            )
+        ]
+
+        self.assertEqual(got, want)
+
+
+class TestSplitNodesLink(unittest.TestCase):
+    pass
 
 
 if __name__ == "__main__":

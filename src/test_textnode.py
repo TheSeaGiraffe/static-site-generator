@@ -9,7 +9,7 @@ from textnode import TextNode, TextType
 class TestTextNode(unittest.TestCase):
     def test_repr(self):
         node = TextNode("This is a text node", TextType.BOLD, "https://www.google.com")
-        want = "TextNode(This is a text node, bold, https://www.google.com)"
+        want = 'TextNode("This is a text node", BOLD, "https://www.google.com")'
         self.assertEqual(repr(node), want)
 
     def test_eq(self):
