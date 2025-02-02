@@ -12,6 +12,16 @@ class TestTextNode(unittest.TestCase):
         want = 'TextNode("This is a text node", BOLD, "https://www.google.com")'
         self.assertEqual(repr(node), want)
 
+    def test_repr_url_none(self):
+        node = TextNode("This is a text node", TextType.BOLD)
+        want = 'TextNode("This is a text node", BOLD, None)'
+        self.assertEqual(repr(node), want)
+
+    def test_repr_url_emtpy_string(self):
+        node = TextNode("This is a text node", TextType.BOLD, "")
+        want = 'TextNode("This is a text node", BOLD, "")'
+        self.assertEqual(repr(node), want)
+
     def test_eq(self):
         node = TextNode("This is a text node", TextType.BOLD)
         node2 = TextNode("This is a text node", TextType.BOLD)
