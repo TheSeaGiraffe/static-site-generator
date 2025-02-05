@@ -62,6 +62,7 @@ def text_node_to_html(text_node: TextNode) -> LeafNode:
             raise ValueError("`text_node` does not match any `TextType` member")
 
 
+# Need to fix this so that splitting on italics with periods works properly.
 def split_nodes_delimiter(
     old_nodes: list[TextNode], delimiter: str, text_type: TextType
 ) -> list[TextNode]:
@@ -101,12 +102,15 @@ def split_nodes_delimiter(
         if delimiter != "" and (num_delims % 2) > 0:
             raise ValueError("Unbalanced delimiters")
         if num_delims == 0:
-            text_node = TextNode(node.text, text_type)
+            text_node = TextNode(node.text, node.text_type)
             text_nodes.append(text_node)
         else:
             node_text_sub = node.text
             if text_type == TextType.ITALIC:
-                node_text_sub = re.sub(r"\b\*{2}|\*{2}\b", "@", node_text_sub)
+                # The issue is here. What is the proper pattern to use?
+                # Will leave this for now.
+                # node_text_sub = re.sub(r"(\b|\B)\*{2}|\*{2}\b", "~", node_text_sub)
+                node_text_sub = re.sub(r"(\b)\*{2}|\*{2}\b", "~", node_text_sub)
             node_text_sub_split: list[str]
             if delimiter != "":
                 if delimiter != "`":
@@ -116,10 +120,10 @@ def split_nodes_delimiter(
             else:
                 node_text_sub_split = [node_text_sub]
             for i, sub_str in enumerate(node_text_sub_split):
-                if sub_str.strip() == "":
+                if sub_str == "":
                     continue
                 if text_type == TextType.ITALIC:
-                    sub_str = re.sub("@|_", "**", sub_str)
+                    sub_str = re.sub("~|_", "**", sub_str)
                 elif text_type == TextType.BOLD:
                     sub_str = re.sub("_", "*", sub_str)
                 if (i % 2) == 0:
@@ -209,7 +213,7 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
             text: str = text_splits.pop() if text_splits else ""
             img: tuple[str, str] | None = imgs.pop() if imgs else None
             if text:
-                text_node = TextNode(text, TextType.TEXT)
+                text_node = TextNode(text, node.text_type, node.url)
                 text_nodes.append(text_node)
             if img is not None:
                 alt_text, url = img
@@ -251,10 +255,31 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
             text: str = text_splits.pop() if text_splits else ""
             link: tuple[str, str] | None = links.pop() if links else None
             if text:
-                text_node = TextNode(text, TextType.TEXT)
+                text_node = TextNode(text, node.text_type, node.url)
                 text_nodes.append(text_node)
             if link is not None:
                 alt_text, url = link
                 text_node = TextNode(alt_text, TextType.LINK, url)
                 text_nodes.append(text_node)
     return text_nodes
+
+
+def text_to_textnodes(text: str) -> list[TextNode]:
+    """Converts text to a list of 'TextNodes' of the appropriate type
+
+    Parameters
+    ----------
+    text: str
+        A string containing valid markdown delimiters and tags.
+
+    Returns
+    -------
+    list[TextNode]
+        A list of TextNode whose type matches the corresponding delimiter.
+    """
+    nodes = [TextNode(text, TextType.TEXT)]
+    for delimiter, text_type in ALLOWED_DELIMS.items():
+        nodes = split_nodes_delimiter(nodes, delimiter, text_type)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes

@@ -68,7 +68,6 @@ class TextNode:
         )
 
     def __repr__(self) -> str:
-        # return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
         repr_str = f'TextNode("{self.text}", {self.text_type.name}, '
         repr_str += f'"{self.url}")' if self.url is not None else f"{self.url})"
         return repr_str
