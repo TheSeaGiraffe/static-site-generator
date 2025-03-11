@@ -14,3 +14,7 @@ wheels/
 justfile
 Makefile
 Taskfile.yml
+
+# Directories
+examples/
+scripts/

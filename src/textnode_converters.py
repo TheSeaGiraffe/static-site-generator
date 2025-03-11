@@ -62,6 +62,14 @@ def text_node_to_html(text_node: TextNode) -> LeafNode:
             raise ValueError("`text_node` does not match any `TextType` member")
 
 
+def textnodes_to_leafnodes(textnodes: list[TextNode]) -> list[LeafNode]:
+    leafnodes: list[LeafNode] = []
+    for textnode in textnodes:
+        leafnode = text_node_to_html(textnode)
+        leafnodes.append(leafnode)
+    return leafnodes
+
+
 # Need to fix this so that splitting on italics with periods works properly.
 def split_nodes_delimiter(
     old_nodes: list[TextNode], delimiter: str, text_type: TextType
@@ -275,7 +283,7 @@ def text_to_textnodes(text: str) -> list[TextNode]:
     Returns
     -------
     list[TextNode]
-        A list of TextNode whose type matches the corresponding delimiter.
+        A list of `TextNode`s whose type matches the corresponding delimiter.
     """
     nodes = [TextNode(text, TextType.TEXT)]
     for delimiter, text_type in ALLOWED_DELIMS.items():

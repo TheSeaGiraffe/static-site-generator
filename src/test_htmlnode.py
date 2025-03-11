@@ -5,9 +5,15 @@ from htmlnode import HTMLNode
 
 class TestHTMLNode(unittest.TestCase):
     # Don't know if I even need this test
-    def test_to_html_not_implemented(self):
-        node = HTMLNode()
-        self.assertRaises(NotImplementedError, node.to_html)
+    def test_to_html_paragraph(self):
+        node = HTMLNode("p", "This is just some text")
+        self.assertEqual(node.to_html(), "<p>This is just some text</p>")
+
+    def test_to_html_props(self):
+        node = HTMLNode("a", "A link to some site", None, {"href": "www.google.com"})
+        self.assertEqual(
+            node.to_html(), '<a href="www.google.com">A link to some site</a>'
+        )
 
     def test_repr_str_default(self):
         node = HTMLNode()
