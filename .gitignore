@@ -16,5 +16,7 @@ Makefile
 Taskfile.yml
 
 # Directories
+_test*/
 examples/
 scripts/
+public/

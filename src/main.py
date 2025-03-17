@@ -1,13 +1,14 @@
-from textnode import TextNode, TextType
+from pathlib import Path
+
+from page_helpers import copy_tree
 
 
 def main():
-    text = "This is just a test"
-    text_type = TextType.TEXT
-    url = "https://www.homestarrunner.com"
-
-    t_node = TextNode(text, text_type, url)
-    print(t_node)
+    static_dir = Path("static")
+    public_dir = Path("public")
+    if not public_dir.exists():
+        public_dir.mkdir()
+    copy_tree(static_dir, public_dir)
 
 
 if __name__ == "__main__":
