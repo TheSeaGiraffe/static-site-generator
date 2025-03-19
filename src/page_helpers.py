@@ -95,7 +95,10 @@ def extract_title(markdown: str) -> str:
 
 
 def generate_page(
-    from_path: Path | str, template_path: Path | str, dest_path: Path | str
+    from_path: Path | str,
+    template_path: Path | str,
+    dest_path: Path | str,
+    basepath: str,
 ):
     from_path, template_path, dest_path = map(
         _convert_to_pathlib_path, (from_path, template_path, dest_path)
@@ -128,11 +131,16 @@ def generate_page(
         dest_path.parent.mkdir(parents=True)
 
     with open(dest_path, "w") as html_page:
-        html_page.write(template.render(Title=title, Content=content))
+        template_str = template.render(Title=title, Content=content)
+        template_str = re.sub(r'(href|src)(=")/', rf"\1\2{basepath}", template_str)
+        html_page.write(template_str)
 
 
 def generate_pages_recursive(
-    dir_path_content: Path | str, template_path: Path | str, dest_dir_path: Path | str
+    dir_path_content: Path | str,
+    template_path: Path | str,
+    dest_dir_path: Path | str,
+    basepath: str,
 ):
     dir_path_content, template_path, dest_dir_path = map(
         _convert_to_pathlib_path, (dir_path_content, template_path, dest_dir_path)
@@ -141,9 +149,12 @@ def generate_pages_recursive(
     for f_content in dir_path_content.iterdir():
         if f_content.is_dir():
             generate_pages_recursive(
-                f_content, template_path, dest_dir_path / f_content.name
+                f_content, template_path, dest_dir_path / f_content.name, basepath
             )
         else:
             generate_page(
-                f_content, template_path, dest_dir_path / f"{f_content.stem}.html"
+                f_content,
+                template_path,
+                dest_dir_path / f"{f_content.stem}.html",
+                basepath,
             )
