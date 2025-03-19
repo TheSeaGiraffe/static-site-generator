@@ -356,4 +356,3 @@ It should be rendered as raw text in p tags
             html,
             "<div><p>####### This is an invalid heading</p><p>It should be rendered as raw text in p tags</p></div>",
         )
-        pass
