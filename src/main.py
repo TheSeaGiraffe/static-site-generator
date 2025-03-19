@@ -8,7 +8,7 @@ def main():
     # Get first CLI argument as the basepath
     basepath = "/"
     if len(argv) > 1:
-        basepath = argv[1]
+        basepath += argv[1]
 
     # Copy contents of static to public
     static_dir = Path("static")
