@@ -129,3 +129,21 @@ def generate_page(
 
     with open(dest_path, "w") as html_page:
         html_page.write(template.render(Title=title, Content=content))
+
+
+def generate_pages_recursive(
+    dir_path_content: Path | str, template_path: Path | str, dest_dir_path: Path | str
+):
+    dir_path_content, template_path, dest_dir_path = map(
+        _convert_to_pathlib_path, (dir_path_content, template_path, dest_dir_path)
+    )
+
+    for f_content in dir_path_content.iterdir():
+        if f_content.is_dir():
+            generate_pages_recursive(
+                f_content, template_path, dest_dir_path / f_content.name
+            )
+        else:
+            generate_page(
+                f_content, template_path, dest_dir_path / f"{f_content.stem}.html"
+            )
