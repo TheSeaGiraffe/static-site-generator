@@ -147,14 +147,14 @@ class TestSplitNodesDelimiter(unittest.TestCase):
     def test_bold_with_nested_delimiters(self):
         nodes = [
             TextNode(
-                "A text node with ***multiple* *italicized* bolds**.", TextType.TEXT
+                "A text node with **_multiple_ _italicized_ bolds**.", TextType.TEXT
             )
         ]
 
         got = split_nodes_delimiter(nodes, "**", TextType.BOLD)
         want = [
             TextNode("A text node with ", TextType.TEXT),
-            TextNode("*multiple* *italicized* bolds", TextType.BOLD),
+            TextNode("_multiple_ _italicized_ bolds", TextType.BOLD),
             TextNode(".", TextType.TEXT),
         ]
 
@@ -165,9 +165,9 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             TextNode("A text node with **bolded section**.", TextType.TEXT),
             TextNode("**An entirely bold text section.**", TextType.TEXT),
             TextNode(
-                "A ***bolded* section with italics** in the front.", TextType.TEXT
+                "A **_bolded_ section with italics** in the front.", TextType.TEXT
             ),
-            TextNode("A **bolded section with *italics*** in the back.", TextType.TEXT),
+            TextNode("A **bolded section with _italics_** in the back.", TextType.TEXT),
         ]
 
         got = split_nodes_delimiter(nodes, "**", TextType.BOLD)
@@ -177,19 +177,19 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             TextNode(".", TextType.TEXT),
             TextNode("An entirely bold text section.", TextType.BOLD),
             TextNode("A ", TextType.TEXT),
-            TextNode("*bolded* section with italics", TextType.BOLD),
+            TextNode("_bolded_ section with italics", TextType.BOLD),
             TextNode(" in the front.", TextType.TEXT),
             TextNode("A ", TextType.TEXT),
-            TextNode("bolded section with *italics*", TextType.BOLD),
+            TextNode("bolded section with _italics_", TextType.BOLD),
             TextNode(" in the back.", TextType.TEXT),
         ]
 
         self.assertEqual(got, want)
 
     def test_italic_delimiter(self):
-        nodes = [TextNode("This is some *italic* text.", TextType.TEXT)]
+        nodes = [TextNode("This is some _italic_ text.", TextType.TEXT)]
 
-        got = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+        got = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
         want = [
             TextNode("This is some ", TextType.TEXT),
             TextNode("italic", TextType.ITALIC),
@@ -201,12 +201,12 @@ class TestSplitNodesDelimiter(unittest.TestCase):
     def test_italic_delimiter_multiple(self):
         nodes = [
             TextNode(
-                "This is some *italic* text with *multiple* delimiters.",
+                "This is some _italic_ text with _multiple_ delimiters.",
                 TextType.TEXT,
             )
         ]
 
-        got = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+        got = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
         want = [
             TextNode("This is some ", TextType.TEXT),
             TextNode("italic", TextType.ITALIC),
@@ -220,12 +220,12 @@ class TestSplitNodesDelimiter(unittest.TestCase):
     def test_italic_delimiter_multiple_adjacent(self):
         nodes = [
             TextNode(
-                "This is some *italic* *text* with adjacent delimiters.",
+                "This is some _italic_ _text_ with adjacent delimiters.",
                 TextType.TEXT,
             )
         ]
 
-        got = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+        got = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
         want = [
             TextNode("This is some ", TextType.TEXT),
             TextNode("italic", TextType.ITALIC),
@@ -237,9 +237,9 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         self.assertEqual(got, want)
 
     def test_all_italic(self):
-        nodes = [TextNode("*This entire text is italic.*", TextType.TEXT)]
+        nodes = [TextNode("_This entire text is italic._", TextType.TEXT)]
 
-        got = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+        got = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
         want = [TextNode("This entire text is italic.", TextType.ITALIC)]
 
         self.assertEqual(got, want)
@@ -247,11 +247,11 @@ class TestSplitNodesDelimiter(unittest.TestCase):
     def test_italic_with_nested_delimiters(self):
         nodes = [
             TextNode(
-                "A text node with ***multiple** **bolded** italics*.", TextType.TEXT
+                "A text node with _**multiple** **bolded** italics_.", TextType.TEXT
             )
         ]
 
-        got = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+        got = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
         want = [
             TextNode("A text node with ", TextType.TEXT),
             TextNode("**multiple** **bolded** italics", TextType.ITALIC),
@@ -262,17 +262,17 @@ class TestSplitNodesDelimiter(unittest.TestCase):
 
     def test_italic_delimiter_multiple_nodes(self):
         nodes = [
-            TextNode("A text node with *italicized section*.", TextType.TEXT),
-            TextNode("*An entirely italicized text section.*", TextType.TEXT),
+            TextNode("A text node with _italicized section_.", TextType.TEXT),
+            TextNode("_An entirely italicized text section._", TextType.TEXT),
             TextNode(
-                "An ***italicized** section with bold* in the front.", TextType.TEXT
+                "An _**italicized** section with bold_ in the front.", TextType.TEXT
             ),
             TextNode(
-                "An *italicized section with **bold*** in the back.", TextType.TEXT
+                "An _italicized section with **bold**_ in the back.", TextType.TEXT
             ),
         ]
 
-        got = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+        got = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
         want = [
             TextNode("A text node with ", TextType.TEXT),
             TextNode("italicized section", TextType.ITALIC),
@@ -347,14 +347,14 @@ class TestSplitNodesDelimiter(unittest.TestCase):
     def test_code_with_nested_delimiters(self):
         nodes = [
             TextNode(
-                "A text node with `*multiple* **markdown** delimiters`.", TextType.TEXT
+                "A text node with `_multiple_ **markdown** delimiters`.", TextType.TEXT
             )
         ]
 
         got = split_nodes_delimiter(nodes, "`", TextType.CODE)
         want = [
             TextNode("A text node with ", TextType.TEXT),
-            TextNode("*multiple* **markdown** delimiters", TextType.CODE),
+            TextNode("_multiple_ **markdown** delimiters", TextType.CODE),
             TextNode(".", TextType.TEXT),
         ]
 
@@ -364,7 +364,7 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         nodes = [
             TextNode("A text node with `code section`.", TextType.TEXT),
             TextNode("`An entire code block.`", TextType.TEXT),
-            TextNode("A `**code** block with *multiple*` delimiters.", TextType.TEXT),
+            TextNode("A `**code** block with _multiple_` delimiters.", TextType.TEXT),
         ]
 
         got = split_nodes_delimiter(nodes, "`", TextType.CODE)
@@ -374,7 +374,7 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             TextNode(".", TextType.TEXT),
             TextNode("An entire code block.", TextType.CODE),
             TextNode("A ", TextType.TEXT),
-            TextNode("**code** block with *multiple*", TextType.CODE),
+            TextNode("**code** block with _multiple_", TextType.CODE),
             TextNode(" delimiters.", TextType.TEXT),
         ]
 
@@ -920,7 +920,7 @@ class TestTextToTextNodes(unittest.TestCase):
         self.assertEqual(got, want)
 
     def test_only_italic(self):
-        text = "This is *text* with a *lot* of *italicized* *words and phrases.*"
+        text = "This is _text_ with a _lot_ of _italicized_ _words and phrases._"
         got = text_to_textnodes(text)
         want = [
             TextNode("This is ", TextType.TEXT),
@@ -979,7 +979,7 @@ class TestTextToTextNodes(unittest.TestCase):
         self.assertEqual(got, want)
 
     def test_all_delimiters_and_tags(self):
-        text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
         got = text_to_textnodes(text)
         want = [
             TextNode("This is ", TextType.TEXT),

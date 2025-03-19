@@ -242,7 +242,7 @@ class TestMarkdownToHTMLNode(unittest.TestCase):
 This is **bolded** paragraph text in a p
 tag here
 
-This is another paragraph with *italic* text and `code` here
+This is another paragraph with _italic_ text and `code` here
 
 """
         node = markdown_to_html_node(md)
@@ -255,7 +255,7 @@ This is another paragraph with *italic* text and `code` here
     def test_codeblock(self):
         md = """
 ```
-This is text that *should* remain
+This is text that _should_ remain
 the **same** even with inline stuff
 ```
 """
@@ -263,14 +263,14 @@ the **same** even with inline stuff
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><pre><code>This is text that *should* remain\nthe **same** even with inline stuff\n</code></pre></div>",
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
 
     def test_quoteblock(self):
         md = """
 > This is a quote block
 > with **bold** text
-> and *italic* text
+> and _italic_ text
 > that `should` be wrapped
 > with the correct tags
 """
@@ -284,7 +284,7 @@ the **same** even with inline stuff
     def test_unordered_list(self):
         md = """
 - this is an **unordered** `list`
-- containing *inline* markdown
+- containing _inline_ markdown
 - spread across 3 lines
 """
         node = markdown_to_html_node(md)
@@ -296,7 +296,7 @@ the **same** even with inline stuff
 
     def test_ordered_list_valid(self):
         md = """
-1. this is a *valid* ordered `list`
+1. this is a _valid_ ordered `list`
 2. with **inline** markdown
 3. this time spread across
 4. 4 lines
@@ -311,7 +311,7 @@ the **same** even with inline stuff
     def test_ordered_list_invalid(self):
         md = """
 2. this is an invalid
-1. *ordered list*
+1. _ordered list_
 4. where **everything**
 3. is out of order
 5. should show as a paragraph
@@ -340,7 +340,7 @@ Some more text
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><h1> This is an H1 heading</h1><p>Some additional text to pad out this example</p><h3> This is an H3 heading</h3><p>Some more text</p><h6> This is an H6 heading</h6></div>",
+            "<div><h1>This is an H1 heading</h1><p>Some additional text to pad out this example</p><h3>This is an H3 heading</h3><p>Some more text</p><h6>This is an H6 heading</h6></div>",
         )
 
     def test_heading_invalid(self):

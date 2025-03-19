@@ -2,6 +2,10 @@ import re
 from pathlib import Path
 from shutil import copy2
 
+from jinja2 import Environment, FileSystemLoader
+
+from markdown_converters import markdown_to_html_node
+
 
 def _convert_to_pathlib_path(path_str: Path | str) -> Path:
     """Convert the specified file path to a pathlib.Path
@@ -87,4 +91,41 @@ def extract_title(markdown: str) -> str:
     m = re.search(pattern, markdown, re.M)
     if m:
         return m.group(1)
-    raise Exception("no H1 heading found")
+    raise Exception("no title found")
+
+
+def generate_page(
+    from_path: Path | str, template_path: Path | str, dest_path: Path | str
+):
+    from_path, template_path, dest_path = map(
+        _convert_to_pathlib_path, (from_path, template_path, dest_path)
+    )
+
+    print(
+        f"Generating page from '{from_path}' to '{dest_path}' using '{template_path}'..."
+    )
+
+    # Load the markdown file
+    with open(from_path) as md_file:
+        md = md_file.read()
+
+    # Get title
+    try:
+        title = extract_title(md)
+    except Exception as e:
+        raise Exception(f"could not generate page: {e}")
+
+    # Get page HTML
+    md_node = markdown_to_html_node(md)
+    content = md_node.to_html()
+
+    # Load the template
+    template_env = Environment(loader=FileSystemLoader("."))
+    template = template_env.get_template("template.html")
+
+    # Generate page from template and write to dest_path
+    if not dest_path.parent.exists():
+        dest_path.parent.mkdir(parents=True)
+
+    with open(dest_path, "w") as html_page:
+        html_page.write(template.render(Title=title, Content=content))

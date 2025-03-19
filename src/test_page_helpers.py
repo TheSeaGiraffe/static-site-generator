@@ -30,7 +30,7 @@ With multiple paragraphs
 For testing the extract_title function
 
 """
-        want = "no H1 heading found"
+        want = "no title found"
         with self.assertRaises(Exception) as cm:
             _ = extract_title(md)
 
@@ -46,7 +46,7 @@ With multiple paragraphs
 For testing the extract_title function
 
 """
-        want = "no H1 heading found"
+        want = "no title found"
         with self.assertRaises(Exception) as cm:
             _ = extract_title(md)
 

@@ -56,7 +56,8 @@ BLOCK_TYPE_PATTERNS: dict[BlockType, str] = {
 BLOCK_TYPE_TAGS: dict[BlockType, list[str]] = {
     BlockType.HEADING: ["h"],
     BlockType.CODE: ["code", "pre"],
-    BlockType.QUOTE: ["p", "blockquote"],
+    # BlockType.QUOTE: ["p", "blockquote"],
+    BlockType.QUOTE: ["blockquote"],
     BlockType.UNORDERED_LIST: ["li", "ul"],
     BlockType.ORDERED_LIST: ["li", "ol"],
     BlockType.PARAGRAPH: ["p"],
@@ -186,7 +187,7 @@ def _check_heading(block: str) -> tuple[list[str], list[str]]:
     pattern = BLOCK_TYPE_PATTERNS[BlockType.HEADING]
     m = re.findall(pattern, block)
     if m:
-        return m, [block.lstrip(m[0])]
+        return m, [block.lstrip(m[0] + " ")]
     return m, [block]
 
 
@@ -281,7 +282,8 @@ def _create_block_html_node(
             num_chars = md_block_chars[0].count("#")
             tag += f"{num_chars}"
             return HTMLNode(tag, None, child_nodes)
-        case BlockType.CODE | BlockType.QUOTE:
+        # case BlockType.CODE | BlockType.QUOTE:
+        case BlockType.CODE:
             inner_tag, outer_tag = BLOCK_TYPE_TAGS[block_type]
             block_node = HTMLNode(inner_tag, None, child_nodes)
             return HTMLNode(outer_tag, None, [block_node])
